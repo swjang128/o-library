@@ -1,5 +1,3 @@
-# o-library
-
 # 우도 API
 
 <aside>
@@ -101,10 +99,10 @@
 
 | 항목 | 설명 | 속성명 | 타입 | nullable | validation | default |
 | --- | --- | --- | --- | --- | --- | --- |
-| 도서명 | 도서 제목 | title | string(50) | X | 숫자를 제외한 문자열만 가능 |  |
-| ISBN | 도서에 부여되는 https://namu.wiki/w/ISBN | isbn | string(50) | X | 이메일 형식으로만 가능 |  |
+| 도서 제목 | 도서 제목 | title | string(50) | X |  |  |
+| ISBN | 도서에 부여되는 https://namu.wiki/w/ISBN | isbn | string(13) | X | 0~9까지의 숫자로만 13자리까지 |  |
 | 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price | string(11) | X | 0~9까지의 숫자로만 11자리까지 |  |
-| 위탁자 ID | 위탁자의 회원 ID | consignerId | BIGINT | X | 1 이상의 양수 |  |
+| 위탁자 ID | 위탁자의 회원 ID | consignerId | number | X | 1 이상의 양수 |  |
 | 상태 | 대여 가능 여부 (0: 불가, 1: 가능) | status | number | X | 0, 1만 가능 | 0 |
 - Response
 
@@ -129,13 +127,13 @@
 - 회원이 대여를 원하는 책을 선택하고 대여하기 버튼을 클릭하면 대여가 완료됩니다. 대여 중인 도서는 다른 회원이 대여할 수 없습니다.
 - Request
 
-| 항목 | 설명 | 속성명 |
-| --- | --- | --- |
-| 도서명 | 도서 제목 | title |
-| ISBN | 도서에 부여되는 https://namu.wiki/w/ISBN | isbn |
-| 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price |
-| 위탁자 이름 | 위탁자의 이름 | consigner |
-| 상태 | 대여 가능 여부 | status |
+| 항목 | 설명 | 속성명 | 타입 | nullable | validation | default |
+| --- | --- | --- | --- | --- | --- | --- |
+| 도서 제목 | 도서 제목 | title | string(50) | X |  |  |
+| ISBN | 도서에 부여되는 https://namu.wiki/w/ISBN | isbn | string(13) | X | 0~9까지의 숫자로만 13자리까지 |  |
+| 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price | string(11) | X | 0~9까지의 숫자로만 11자리까지 |  |
+| 위탁자 ID | 위탁자의 회원 ID | consignerId | number | X | 1 이상의 양수 |  |
+| 상태 | 대여 가능 여부 (0: 불가, 1: 가능) | status | number | X | 0, 1만 가능 | 0 |
 - Response
 
 | 항목 | 설명 |
@@ -159,15 +157,15 @@
 - **목록 조회에 필요한 파라미터 추가**
     - **검색어(제목)**
     - **대여 가격(최소, 최대)**
+    - **대여 가능 여부**
 - Request
 
-| 항목 | 설명 | 속성명 |
-| --- | --- | --- |
-| 정렬 방법 | 대여 많은 순, 낮은 가격 순, 최근 등록일 순 등 | sortingMethod |
-| 검색어 | 제목으로 검색할 수 있도록 추가 | isbn |
-| 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price |
-| 위탁자 이름 | 위탁자의 이름 | consigner |
-| 상태 | 대여 가능 여부 | status |
+| 항목 | 설명 | 속성명 | 타입 | nullable | validation | default |
+| --- | --- | --- | --- | --- | --- | --- |
+| 정렬 방법 | 대여 많은 순, 낮은 가격 순, 최근 등록일 순 등 | sortingMethod | string(50) | O | SortingMethod enum 사용 |  |
+| 검색어 | 제목으로 검색할 수 있도록 추가 | isbn | string(60) | O | 숫자를 제외한 문자열만 가능 |  |
+| 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price | number | O | 0~9까지의 숫자로만 11자리까지 |  |
+| 상태 | 대여 가능 여부 | status | number | O | 0, 1만 가능 |  |
 - Response
 
 | 항목 | 설명 |

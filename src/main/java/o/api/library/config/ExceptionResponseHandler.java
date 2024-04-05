@@ -25,31 +25,31 @@ public class ExceptionResponseHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({HttpClientErrorException.BadRequest.class,
             HttpClientErrorException.NotFound.class,
             HttpClientErrorException.MethodNotAllowed.class})
-    public ApiResponse handleBadRequestException(Exception e) {
+    public ApiResponseManager handleBadRequestException(Exception e) {
         log.error("handle BadRequestException: {}", e.getMessage());
-        return ApiResponse.error(HttpStatus.BAD_REQUEST, e.getMessage());
+        return ApiResponseManager.error(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
     @Description("Exception abort")
     @ExceptionHandler({RuntimeException.class, InterruptedException.class, InternalError.class,
             JsonProcessingException.class, JSONException.class, IOException.class,
             TimeoutException.class, DuplicateRequestException.class})
-    public ApiResponse handleException(Exception e) {
+    public ApiResponseManager handleException(Exception e) {
         log.error("handle Exception: {}", e.getMessage());
-        return ApiResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        return ApiResponseManager.error(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @Description("Request unauthorized exception abort")
     @ExceptionHandler(HttpClientErrorException.Unauthorized.class)
-    public ApiResponse handleUnauthorizedException(HttpClientErrorException e) {
+    public ApiResponseManager handleUnauthorizedException(HttpClientErrorException e) {
         log.error("handle UnauthorizedException: {}", e.getMessage());
-        return ApiResponse.error(HttpStatus.UNAUTHORIZED, e.getMessage());
+        return ApiResponseManager.error(HttpStatus.UNAUTHORIZED, e.getMessage());
     }
 
     @Description("Request forbidden exception abort")
     @ExceptionHandler({HttpClientErrorException.Forbidden.class, HttpClientErrorException.NotAcceptable.class})
-    public ApiResponse handleForbiddenException(HttpClientErrorException e) {
+    public ApiResponseManager handleForbiddenException(HttpClientErrorException e) {
         log.error("handle ForbiddenException: {}", e.getMessage());
-        return ApiResponse.error(HttpStatus.FORBIDDEN, e.getMessage());
+        return ApiResponseManager.error(HttpStatus.FORBIDDEN, e.getMessage());
     }
 }

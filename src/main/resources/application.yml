@@ -1,3 +1,4 @@
+# Spring
 spring:
   profiles:
     active: ${SPRING_PROFILE}
@@ -17,6 +18,7 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+# Server
 server:
   port: ${SERVER_PORT}
   error:
@@ -24,6 +26,7 @@ server:
   servlet:
     session:
       timeout: 1440m
+
 # Logger Properties
 logging:
   level:
@@ -36,3 +39,11 @@ logging:
               BasicBinder: trace
   file:
     path: ./logs/${SPRING_PROFILE}
+
+# Swagger
+springdoc:
+  swagger-ui:
+    enabled: ${SWAGGER_ENABLED}
+
+# Custom
+PASSWORD_KEY: VWRvQVBJKHN3amFuZzEyOCk=

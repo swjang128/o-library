@@ -7,22 +7,22 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @Builder
-public class ApiResponse {
+public class ApiResponseManager {
     private int status;
     private String message;
     private Object data;
 
     @Description("Setting up API response without data")
-    public static ApiResponse ok() {
-        return ApiResponse.builder()
+    public static ApiResponseManager ok() {
+        return ApiResponseManager.builder()
                 .status(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
                 .build();
     }
 
     @Description("Setting up API response with data")
-    public static ApiResponse success(Object data) {
-        return ApiResponse.builder()
+    public static ApiResponseManager success(Object data) {
+        return ApiResponseManager.builder()
                 .status(HttpStatus.OK.value())
                 .message(HttpStatus.OK.getReasonPhrase())
                 .data(data)
@@ -30,8 +30,8 @@ public class ApiResponse {
     }
 
     @Description("Setting up API response when error occurred")
-    public static ApiResponse error(HttpStatus status, String message) {
-        return ApiResponse.builder()
+    public static ApiResponseManager error(HttpStatus status, String message) {
+        return ApiResponseManager.builder()
                 .status(status.value())
                 .message(message)
                 .build();
