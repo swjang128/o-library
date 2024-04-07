@@ -20,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,11 +57,11 @@ public class BookServiceImpl implements BookService {
             if (optionalMember.isPresent()) {
                 Member checkoutMember = optionalMember.get();
                 book.setCheckOutAndIncreaseCount(checkoutMember.getId());
-                bookRepository.save(book);
+                bookRepository.save(book); // 변경된 Book 엔티티를 저장
                 // BookHistory에 해당 내용을 INSERT
                 BookHistory bookHistory = bookCheckoutDto.historyByCheckout(book, checkoutMember.getId());
                 bookHistoryRepository.save(bookHistory);
-                return ApiResponseManager.success(book);
+                return ApiResponseManager.success(book); // 변경된 Book 엔티티 반환
             } else {
                 return ApiResponseManager.error(HttpStatus.NOT_FOUND, "대여자를 찾을 수 없습니다");
             }
@@ -105,12 +104,5 @@ public class BookServiceImpl implements BookService {
         responseData.put("totalPage", bookPage.getTotalPages());
 
         return ApiResponseManager.success(responseData);
-    }
-
-    @Override
-    @Description("도서 반납(10초에서 20초 사이 랜덤 주기 실행")
-    @Scheduled(fixedDelayString = "#{ T(java.lang.Math).random() * (20000 - 10000) + 10000 }")
-    public void returnBook() {
-        log.info("**** 도서 반납 스케줄러 실행");
     }
 }

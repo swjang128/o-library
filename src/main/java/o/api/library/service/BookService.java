@@ -19,7 +19,4 @@ public interface BookService {
 
     @Description("조건에 맞는 도서 목록 조회")
     ApiResponseManager bookList(BookListRequestDto bookListRequestDto, Pageable pageable);
-
-    @Description("도서 반납 스케줄러")
-    void returnBook();
 }

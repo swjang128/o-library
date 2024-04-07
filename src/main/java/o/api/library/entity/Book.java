@@ -50,9 +50,10 @@ public class Book {
     @LastModifiedDate
     private LocalDateTime modifiedDate;
 
-    @Description("대여자 ID를 변경하고, 대여 횟수 증가")
+    @Description("checkout_id를 변경하고, checkout_count + 1, status = false로 변경")
     public void setCheckOutAndIncreaseCount(Long checkoutId) {
         this.checkoutId = checkoutId;
+        this.status = false;
         this.checkoutCount++;
     }
 }

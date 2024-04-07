@@ -14,6 +14,8 @@ import o.api.library.entity.Book;
 import o.api.library.entity.BookHistory;
 import o.api.library.entity.Member;
 
+import static o.api.library.domain.BookHistoryType.CONSIGN;
+
 @Builder
 @Getter
 @AllArgsConstructor
@@ -52,6 +54,7 @@ public class BookConsignDto {
                 .checkoutId(null)
                 .title(title)
                 .isbn(isbn)
+                .bookHistoryType(CONSIGN)
                 .build();
     }
 }

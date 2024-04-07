@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import o.api.library.domain.BookHistoryType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -32,6 +33,9 @@ public class BookHistory {
     private String isbn;
 
     private Long checkoutId;
+
+    @Enumerated(EnumType.STRING)
+    private BookHistoryType bookHistoryType;
 
     @CreatedDate
     @Column(updatable = false)
