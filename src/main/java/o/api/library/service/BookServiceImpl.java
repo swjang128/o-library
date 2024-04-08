@@ -37,12 +37,16 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     @Description("도서 위탁")
-    public ApiResponseManager consignBook(BookConsignDto bookConsignDto) {
-        // Book 테이블에 INSERT
-        Book book = bookRepository.save(bookConsignDto.consign());
-        // BookHistory 테이블에 INSERT
-        bookHistoryRepository.save(bookConsignDto.historyByConsign(book));
-        return ApiResponseManager.success(book);
+    public ApiResponseManager consignBooks(List<BookConsignDto> bookConsignDtoList) {
+        List<Book> books = new ArrayList<>();
+        bookConsignDtoList.parallelStream()
+                .map(bookConsignDto -> {
+                    Book book = bookRepository.save(bookConsignDto.consign());
+                    books.add(book);
+                    return new AbstractMap.SimpleEntry<>(book, bookConsignDto.historyByConsign(book));
+                })
+                .forEach(entry -> bookHistoryRepository.save(entry.getValue()));
+        return ApiResponseManager.success(books);
     }
 
     @Override

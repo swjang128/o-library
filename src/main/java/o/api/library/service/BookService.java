@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface BookService {
     @Description("도서 위탁")
-   ApiResponseManager consignBook(BookConsignDto bookConsignDto);
+   ApiResponseManager consignBooks(List<BookConsignDto> bookConsignDtoList);
 
     @Description("도서 대여")
     ApiResponseManager checkoutBook(BookCheckoutDto bookCheckoutDto);

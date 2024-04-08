@@ -2,8 +2,11 @@ package o.api.library.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sun.jdi.request.DuplicateRequestException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import jdk.jfr.Description;
 import lombok.extern.slf4j.Slf4j;
+import o.api.library.dto.BookConsignDto;
 import org.json.JSONException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -14,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 @Description("Exception Handlers to customize message and result")
@@ -24,7 +28,8 @@ public class ExceptionResponseHandler extends ResponseEntityExceptionHandler {
     @Description("Request bad request exception abort")
     @ExceptionHandler({HttpClientErrorException.BadRequest.class,
             HttpClientErrorException.NotFound.class,
-            HttpClientErrorException.MethodNotAllowed.class})
+            HttpClientErrorException.MethodNotAllowed.class,
+            ConstraintViolationException.class})
     public ApiResponseManager handleBadRequestException(Exception e) {
         log.error("handle BadRequestException: {}", e.getMessage());
         return ApiResponseManager.error(HttpStatus.BAD_REQUEST, e.getMessage());
