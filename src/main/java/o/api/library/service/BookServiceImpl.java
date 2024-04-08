@@ -15,6 +15,7 @@ import o.api.library.repository.BookHistoryRepository;
 import o.api.library.repository.BookRepository;
 import o.api.library.repository.MemberRepository;
 import o.api.library.specification.BookSpecification;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,29 +50,54 @@ public class BookServiceImpl implements BookService {
         return ApiResponseManager.success(books);
     }
 
+
+
+
+    // 해당 리스트의 데이터를 Book에 Update 성공하면 해당 엔티티 객체와 BookCheckoutDto의 checkoutId를 파라미터로 하여 BookHistory에 해당 내용을 INSERT
+
+    // 변경된 Book 엔티티 ApiResponseManager.success(book)으로 리턴
+
+
     @Override
     @Transactional
     @Description("도서 대여")
-    public ApiResponseManager checkoutBook(BookCheckoutDto bookCheckoutDto) {
-        // 해당 도서가 존재하는지 확인하고 존재하면 checkOutId를 checkOut에 Update하고, checkOutCount를 + 1 한다.
-        Optional<Book> optionalBook = bookRepository.findById(bookCheckoutDto.getId());
-        if (optionalBook.isPresent()) {
-            Book book = optionalBook.get();
-            Optional<Member> optionalMember = memberRepository.findById(bookCheckoutDto.getCheckoutId());
-            if (optionalMember.isPresent()) {
-                Member checkoutMember = optionalMember.get();
-                book.setCheckOutAndIncreaseCount(checkoutMember.getId());
-                bookRepository.save(book); // 변경된 Book 엔티티를 저장
-                // BookHistory에 해당 내용을 INSERT
-                BookHistory bookHistory = bookCheckoutDto.historyByCheckout(book, checkoutMember.getId());
-                bookHistoryRepository.save(bookHistory);
-                return ApiResponseManager.success(book); // 변경된 Book 엔티티 반환
+    public ApiResponseManager checkoutBooks(List<BookCheckoutDto> bookCheckoutDtoList) {
+        List<Book> checkoutBookList = new ArrayList<>();    // 대여 성공한 도서 리스트
+        List<Book> checkoutFailedBookList = new ArrayList<>();  // 대여 실패한 도서 리스트
+        List<BookHistory> bookHistoryList = new ArrayList<>();  // 대여 성공한 도서 리스트를 BookHistory에 담기 위한 리스트
+        Map<String, Object> checkoutResult = new HashMap<>(); // 도서 대여 결과를 담는 객체
+        // 해당 도서가 존재하는지 체크하여 리스트로 가져오기
+        List<Book> bookList = bookRepository.findByIdIn(bookCheckoutDtoList.stream().map(BookCheckoutDto::getId).toList());
+        // 해당 도서의 status가 true이고 checkoutId가 null이면 Book 테이블에 BookCheckoutDto의 checkoutId로 Update하고 checkoutCount를 + 1하고 status를 false로 바꾼다.
+        for (BookCheckoutDto bookCheckoutDto : bookCheckoutDtoList) {
+            Optional<Book> optionalBook = bookList.stream()
+                    .filter(book -> book.getId().equals(bookCheckoutDto.getId()))
+                    .findFirst();
+            if (optionalBook.isPresent()) {
+                Book book = optionalBook.get();
+                // 대여할 수 있는 도서인 경우 updateBooks에 Book을 추가
+                if (book.isStatus() && book.getCheckoutId() == null) {
+                    book.setCheckOutAndIncreaseCount(bookCheckoutDto.getCheckoutId());
+                    checkoutBookList.add(book);
+                    BookHistory bookHistory = bookCheckoutDto.historyByCheckout(book, bookCheckoutDto.getCheckoutId());
+                    bookHistoryList.add(bookHistory);
+                } else {
+                    // 대여할 수 없는 경우 대여 실패 리스트(checkoutFailedBooks) 에 추가
+                    checkoutFailedBookList.add(book);
+                }
             } else {
-                return ApiResponseManager.error(HttpStatus.NOT_FOUND, "대여자를 찾을 수 없습니다");
+                // 없는 도서인 경우 대여 실패 리스트(checkoutFailedBooks) 에 추가
+                checkoutFailedBookList.add(optionalBook.get());
             }
-        } else {
-            return ApiResponseManager.error(HttpStatus.NOT_FOUND, "해당 도서를 찾을 수 없습니다");
         }
+        // 대여할 수 있는 도서들은 Book 테이블에 UPDATE, BookHistory에 INSERT
+        bookRepository.saveAll(checkoutBookList);
+        bookHistoryRepository.saveAll(bookHistoryList);
+        // 도서 대여 결과를 담아서 리턴
+        checkoutResult.put("checkoutBookList", checkoutBookList);
+        checkoutResult.put("checkoutFailedBookList", checkoutFailedBookList);
+        checkoutResult.put("bookHistoryList", bookHistoryList);
+        return ApiResponseManager.success(checkoutResult);
     }
 
     @Override

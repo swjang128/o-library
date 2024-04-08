@@ -55,14 +55,14 @@ public class BookController {
     @Operation(summary = "도서 위탁", description = "위탁한 도서를 Book, BookHistory 테이블에 Insert")
     @ApiResponse(responseCode = "200", description = "OK")
     @PostMapping("/consign")
-    public ApiResponseManager consignBook(@Validated @RequestBody List<BookConsignDto> bookConsignDtoList) {
+    public ApiResponseManager consignBooks(@Validated @RequestBody List<BookConsignDto> bookConsignDtoList) {
         return bookService.consignBooks(bookConsignDtoList);
     }
 
     @Operation(summary = "도서 대여", description = "도서를 대여하고 Book 테이블에 Update, BookHistory 테이블에 Insert")
     @ApiResponse(responseCode = "200", description = "OK")
     @PutMapping("/checkout")
-    public ApiResponseManager checkoutBook(@Valid @RequestBody BookCheckoutDto bookCheckoutDto) {
-        return bookService.checkoutBook(bookCheckoutDto);
+    public ApiResponseManager checkoutBooks(@Validated @RequestBody List<BookCheckoutDto> bookCheckoutDtoList) {
+        return bookService.checkoutBooks(bookCheckoutDtoList);
     }
 }

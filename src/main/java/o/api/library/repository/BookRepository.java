@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book> {
     List<Book> findByStatusAndModifiedDateBeforeAndCheckoutIdIsNotNull(boolean status, LocalDateTime localDateTime);
+
+    List<Book> findByIdIn(List<Long> bookIds);
 }

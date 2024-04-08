@@ -15,7 +15,7 @@ public interface BookService {
    ApiResponseManager consignBooks(List<BookConsignDto> bookConsignDtoList);
 
     @Description("도서 대여")
-    ApiResponseManager checkoutBook(BookCheckoutDto bookCheckoutDto);
+    ApiResponseManager checkoutBooks(List<BookCheckoutDto> bookCheckoutDtoList);
 
     @Description("조건에 맞는 도서 목록 조회")
     ApiResponseManager bookList(BookListRequestDto bookListRequestDto, Pageable pageable);
