@@ -22,7 +22,7 @@ public class MemberController {
 
     @Operation(summary = "회원 가입", description = "회원 정보를 등록하는 API")
     @ApiResponse(responseCode = "200", description = "OK")
-    @PostMapping("/list")
+    @PostMapping()
     public ApiResponseManager signUp(@Valid @RequestBody MemberSignUpDto memberSignUpDto) {
         return memberService.signUp(memberSignUpDto);
     }

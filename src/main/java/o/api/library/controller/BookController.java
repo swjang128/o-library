@@ -27,7 +27,7 @@ public class BookController {
 
     @Operation(summary = "조건에 맞는 도서 목록 조회", description = "조건에 맞는 도서 목록을 가져오는 API")
     @ApiResponse(responseCode = "200", description = "OK")
-    @GetMapping("/list")
+    @GetMapping("list")
     public ApiResponseManager bookList(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
