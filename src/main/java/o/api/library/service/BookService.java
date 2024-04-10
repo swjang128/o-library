@@ -6,7 +6,6 @@ import o.api.library.dto.BookCheckoutDto;
 import o.api.library.dto.BookConsignDto;
 import o.api.library.dto.BookListRequestDto;
 import org.springframework.data.domain.Pageable;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 

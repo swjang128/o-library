@@ -15,12 +15,10 @@ import o.api.library.repository.BookHistoryRepository;
 import o.api.library.repository.BookRepository;
 import o.api.library.repository.MemberRepository;
 import o.api.library.specification.BookSpecification;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

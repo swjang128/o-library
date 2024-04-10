@@ -12,7 +12,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import o.api.library.entity.Book;
 import o.api.library.entity.BookHistory;
-import o.api.library.entity.Member;
 
 import static o.api.library.domain.BookHistoryType.CONSIGN;
 
