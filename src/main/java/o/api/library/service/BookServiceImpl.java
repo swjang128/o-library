@@ -37,7 +37,9 @@ public class BookServiceImpl implements BookService {
     @Transactional
     @Description("도서 위탁")
     public ApiResponseManager consignBooks(List<BookConsignDto> bookConsignDtoList) {
+        // 위탁한 도서 리스트를 담는 객체 선언
         List<Book> books = new ArrayList<>();
+        // 받아온 DTO에 있는 도서 정보들을 Entity로 변환하여 Book 테이블에 저장
         bookConsignDtoList.parallelStream()
                 .map(bookConsignDto -> {
                     Book book = bookRepository.save(bookConsignDto.consign());
@@ -47,14 +49,6 @@ public class BookServiceImpl implements BookService {
                 .forEach(entry -> bookHistoryRepository.save(entry.getValue()));
         return ApiResponseManager.success(books);
     }
-
-
-
-
-    // 해당 리스트의 데이터를 Book에 Update 성공하면 해당 엔티티 객체와 BookCheckoutDto의 checkoutId를 파라미터로 하여 BookHistory에 해당 내용을 INSERT
-
-    // 변경된 Book 엔티티 ApiResponseManager.success(book)으로 리턴
-
 
     @Override
     @Transactional
