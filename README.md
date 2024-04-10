@@ -1,11 +1,5 @@
 # 우도 API
 
-<aside>
-❗ **Notion 팁:** 이 템플릿을 활용해 Notion에서 API 레퍼런스를 작성하고 호스팅해 보세요.
-엔드포인트 데이터베이스에는 추가 문서를 위한 엔드포인트 템플릿도 포함되어 있습니다.
-
-</aside>
-
 # 기본 정보
 
 ## 요구사항
@@ -24,7 +18,7 @@
 - 도서 위탁
 - 도서 대여
 - **도서 목록**
-- 도서 반납
+- 도서 반납(스케줄러)
 
 ---
 
@@ -51,22 +45,56 @@
 | Method | URL | 기능 |
 | --- | --- | --- |
 | POST | /member | 회원 가입 |
-| POST | /book/consignment | 도서 위탁 |
-| POST | /book/checkOut | 도서 대여 |
+| POST | /book/consign | 도서 위탁 |
+| PUT | /book/checkout | 도서 대여 |
 | GET | /book/list | 도서 목록 조회 |
 | POST | /book/return | 도서 반납 |
 
 ---
 
-### 테이블 설계
+## 테이블 설계
 
-[Member](%E1%84%8B%E1%85%AE%E1%84%83%E1%85%A9%20API%20b67d922c5a5e4fdbae9107f67b6a73f8/Member%20ea3c5c0199d64281957627c2c839182e.csv)
+### MEMBER
 
-[Book](%E1%84%8B%E1%85%AE%E1%84%83%E1%85%A9%20API%20b67d922c5a5e4fdbae9107f67b6a73f8/Book%20d4a99aba8d8c40a7a719d9be79e1f89f.csv)
+| 컬럼 | 설명 | 타입 | Nullable | Key | Default | 비고 |
+| --- | --- | --- | --- | --- | --- | --- |
+| id | 회원 ID | BIGINT | X | PRIMARY |  |  |
+| name | 이름 | VARCHAR(50) | X |  |  |  |
+| email | 이메일 | VARCHAR(50) | X | UNIQUE |  |  |
+| phone | 연락처 | VARCHAR(11) | X | UNIQUE |  |  |
+| password | 비밀번호 | TEXT | X |  |  | AES256 암호화 저장 |
+| created_date | 가입일시(생성일시) | DATETIME(6) | X |  |  |  |
+| modified_date | 수정일시 | DATETIME(6) | X |  |  |  |
+
+### BOOK
+
+| 컬럼 | 설명 | 타입 | Nullable | Key | Default | 비고 |
+| --- | --- | --- | --- | --- | --- | --- |
+| id | 도서 ID | BIGINT | X | PRIMARY |  |  |
+| title | 제목 | VARCHAR(60) | X |  |  |  |
+| isbn | ISBN | VARCHAR(13) | X |  |  |  |
+| price | 대여료 | INT | X |  | 0 |  |
+| consigner | 위탁자 | MEMBER | X |  |  | MEMBER 조인 |
+| checkout | 대여자 | MEMBER | O |  |  | MEMBER 조인 |
+| status | 상태 | TINYINT | X |  | 0 | 0: 불가, 1: 가능 |
+| checkout_count | 대여횟수 | INT | X |  | 0 |  |
+| created_date | 생성일시 | DATETIME(6) | X |  |  |  |
+| modified_date | 수정일시 | DATETIME(6) | X |  |  |  |
+
+### BOOK_HISTORY
+
+| 컬럼 | 설명 | 타입 | Nullable | Key | Default | 비고 |
+| --- | --- | --- | --- | --- | --- | --- |
+| id | 도서 대여 내역 ID | BIGINT | X | PRIMARY |  |  |
+| book_id | 도서 ID | BOOK | X |  |  | http://BOOK.ID 조인 |
+| title | 도서 제목 | VARCHAR(60) | X |  |  |  |
+| isbn | ISBN | VARCHAR(13) | X |  |  |  |
+| checkout_id | 대여자 | BIGINT | O |  |  |  |
+| created_date | 생성일시 | DATETIME(6) | X |  |  |  |
 
 ---
 
-### Feature Specification
+## Feature Specification
 
 **1. 회원 가입**
 
@@ -82,7 +110,9 @@
 | 비밀번호 | 로그인을 위한 비밀번호
 - 최소 6자 이상 10자 이하
 - 영문 소문자, 대문자, 숫자 중 최소 두 가지 이상 조합 필요 | password | string(10) | X | 1. 영문 대소문자, 숫자 중 최소 2가지 이상의 조합
-2. 최소 6자 이상, 최대 10자 이하 |  |
+2. 최소 6자 이상, 최대 10자 이하
+
+※ DB에서 값을 확인하기 위해 별도로 암호화는 하지 않았습니다. |  |
 - Response
 
 | 항목 | 설명 |
@@ -97,13 +127,13 @@
 
 - Request
 
-| 항목 | 설명 | 속성명 | 타입 | nullable | validation | default |
-| --- | --- | --- | --- | --- | --- | --- |
-| 도서 제목 | 도서 제목 | title | string(50) | X |  |  |
-| ISBN | 도서에 부여되는 https://namu.wiki/w/ISBN | isbn | string(13) | X | 0~9까지의 숫자로만 13자리까지 |  |
-| 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price | string(11) | X | 0~9까지의 숫자로만 11자리까지 |  |
-| 위탁자 ID | 위탁자의 회원 ID | consignerId | number | X | 1 이상의 양수 |  |
-| 상태 | 대여 가능 여부 (0: 불가, 1: 가능) | status | number | X | 0, 1만 가능 | 0 |
+| 항목 | 설명 | 속성명 | 타입 | nullable | validation | default |  |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 도서 제목 | 도서 제목 | title | string(50) | X |  |  |  |
+| ISBN | 도서에 부여되는 https://namu.wiki/w/ISBN | isbn | string(13) | X | 0~9까지의 숫자로만 13자리까지 |  |  |
+| 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price | number | X | 0 이상의 양수 | 0 |  |
+| 위탁자 ID | 위탁자의 회원 ID | consigner | number | X | 1 이상의 양수 |  |  |
+| 상태 | 대여 가능 여부 (0: 불가, 1: 가능) | status | number | X | 0, 1만 가능 | 0 |  |
 - Response
 
 | 항목 | 설명 |
@@ -119,21 +149,18 @@
 - 도서 목록은 pagination을 제공합니다. 1페이지 당 20개의 도서를 불러옵니다.
 - 대여 많은 순, 낮은 가격순, 최근 등록일순으로 도서 목록 정렬이 가능합니다. 대여 많은 순은 가장 대여가 많이 된 도서를 먼저 보여줍니다.
 - 도서 목록의 각 도서 아이템은 아래 정보를 표시합니다.
-    - 도서명
-    - ISBN
-    - 대여 가격
-    - 위탁자 이름
-    - **대여 가능 여부 (가능, 불가능)**
+  - 도서명
+  - ISBN
+  - 대여 가격
+  - 위탁자 이름
+  - **대여 가능 여부 (가능, 불가능)**
 - 회원이 대여를 원하는 책을 선택하고 대여하기 버튼을 클릭하면 대여가 완료됩니다. 대여 중인 도서는 다른 회원이 대여할 수 없습니다.
 - Request
 
 | 항목 | 설명 | 속성명 | 타입 | nullable | validation | default |
 | --- | --- | --- | --- | --- | --- | --- |
-| 도서 제목 | 도서 제목 | title | string(50) | X |  |  |
-| ISBN | 도서에 부여되는 https://namu.wiki/w/ISBN | isbn | string(13) | X | 0~9까지의 숫자로만 13자리까지 |  |
-| 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price | string(11) | X | 0~9까지의 숫자로만 11자리까지 |  |
-| 위탁자 ID | 위탁자의 회원 ID | consignerId | number | X | 1 이상의 양수 |  |
-| 상태 | 대여 가능 여부 (0: 불가, 1: 가능) | status | number | X | 0, 1만 가능 | 0 |
+| 도서 ID | 도서 ID | id | number | X | 1 이상의 양수 |  |
+| 회원 ID | 대여하는 회원 ID | checkoutId | number | X | 1 이상의 양수 |  |
 - Response
 
 | 항목 | 설명 |
@@ -149,20 +176,20 @@
 - 도서 목록은 pagination을 제공합니다. 1페이지 당 20개의 도서를 불러옵니다.
 - 대여 많은 순, 낮은 가격순, 최근 등록일순으로 도서 목록 정렬이 가능합니다. 대여 많은 순은 가장 대여가 많이 된 도서를 먼저 보여줍니다.
 - 도서 목록의 각 도서 아이템은 아래 정보를 표시합니다.
-    - 도서명
-    - ISBN
-    - 대여 가격
-    - 위탁자 이름
-    - **대여 가능 여부 (가능, 불가능)**
+  - 도서명
+  - ISBN
+  - 대여 가격
+  - 위탁자 이름
+  - **대여 가능 여부 (가능, 불가능)**
 - **목록 조회에 필요한 파라미터 추가**
-    - **검색어(제목)**
-    - **대여 가격(최소, 최대)**
-    - **대여 가능 여부**
+  - **검색어(제목)**
+  - **대여 가격(최소, 최대)**
+  - **대여 가능 여부**
 - Request
 
 | 항목 | 설명 | 속성명 | 타입 | nullable | validation | default |
 | --- | --- | --- | --- | --- | --- | --- |
-| 정렬 방법 | 대여 많은 순, 낮은 가격 순, 최근 등록일 순 등 | sortingMethod | string(50) | O | SortingMethod enum 사용 |  |
+| 정렬 방법 | 대여 많은 순, 낮은 가격 순, 최근 등록일 순 등 | bookSortingMethod | BookSortingMethod | O | SortingMethod enum 사용 |  |
 | 검색어 | 제목으로 검색할 수 있도록 추가 | isbn | string(60) | O | 숫자를 제외한 문자열만 가능 |  |
 | 대여 가격 | 대여자가 해당 도서를 대여할 때 지불하는 가격 | price | number | O | 0~9까지의 숫자로만 11자리까지 |  |
 | 상태 | 대여 가능 여부 | status | number | O | 0, 1만 가능 |  |
@@ -179,8 +206,8 @@
 도서 반납은 도서가 대여된 시점으로부터 최소 10초 ~ 최대 20초가 경과하면 자동으로 반납 처리합니다. 반납된 도서는 다른 회원이 대여할 수 있습니다. 해당 기능은 스케줄러로 구현합니다.
 
 - 실행 주기
-    - 10초에서 20초 사이의 랜덤한 시간을 주기로 도서 반납 처리 메서드를 실행합니다.
-      @Scheduled(fixedDelayString = "#{ T(java.lang.Math).random() * (20000 - 10000) + 10000 }")
+  - 10초에서 20초 사이의 랜덤한 시간을 주기로 도서 반납 처리 메서드를 실행합니다.
+    `@Scheduled(cron = "*/20 * * * * *")`
 
 ---
 
@@ -202,3 +229,25 @@ HTTP 응답 코드는 일반적인 성공과 오류 클래스를 나타내는 �
 | --- | --- | --- |
 | 400 | 400 | Bad request |
 | 500 | 500 | Internal server error |
+
+---
+
+## 프로젝트 실행 방법
+
+### 1. 데이터베이스 생성
+
+create database {DATABASE_NAME};
+
+### 2. 환경설정 파일 세팅
+
+[.env.local](%E1%84%8B%E1%85%AE%E1%84%83%E1%85%A9%20API%20b67d922c5a5e4fdbae9107f67b6a73f8/.env.local)
+
+위 설정 파일의 내용을 프로젝트 환경에 맞게 변경해주세요.
+
+### 3. IntelliJ에서 스프링부트 메인 클래스 실행 설정
+
+![Untitled](%E1%84%8B%E1%85%AE%E1%84%83%E1%85%A9%20API%20b67d922c5a5e4fdbae9107f67b6a73f8/Untitled.png)
+
+### 4. Swagger 실행
+
+[http://{SERVER_IP}:{PORT}/swagger-ui/index.html](http://localhost:1234/swagger-ui/index.html#/%EB%8F%84%EC%84%9C%20%EA%B4%80%EB%A6%AC%20API/checkoutBooks)
