@@ -24,6 +24,7 @@ server:
   error:
     path: /error
   servlet:
+    context-path: /library
     session:
       timeout: 1440m
 

@@ -34,6 +34,9 @@ public class Member {
     @Column(nullable = false, length = 10)
     private String password;
 
+    @Column(nullable = false, columnDefinition = "BIGINT DEFAULT 0")
+    private Long balance;
+
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdDate;

@@ -36,6 +36,7 @@ public class BookReturnScheduler {
             Book updatedBook = Book.builder()
                     .id(book.getId())
                     .consignerId(book.getConsignerId())
+                    .checkoutCount(book.getCheckoutCount())
                     .title(book.getTitle())
                     .isbn(book.getIsbn())
                     .price(book.getPrice())
