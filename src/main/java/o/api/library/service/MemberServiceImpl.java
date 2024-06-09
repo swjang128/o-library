@@ -14,7 +14,17 @@ public class MemberServiceImpl implements MemberService {
     private MemberRepository memberRepository;
 
     @Override
-    public ApiResponseManager signUp(MemberSignUpDto memberSignUpDto) {
+    public ApiResponseManager createMember(MemberSignUpDto memberSignUpDto) {
         return ApiResponseManager.success(memberRepository.save(memberSignUpDto.signUp()));
+    }
+
+    @Override
+    public ApiResponseManager readMember(Long id) {
+        return ApiResponseManager.success(memberRepository.findById(id));
+    }
+
+    @Override
+    public ApiResponseManager readMemberList() {
+        return ApiResponseManager.success(memberRepository.findAll());
     }
 }
