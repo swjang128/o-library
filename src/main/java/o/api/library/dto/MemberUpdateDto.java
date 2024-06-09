@@ -1,10 +1,7 @@
 package o.api.library.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.PositiveOrZero;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import jdk.jfr.Description;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +13,11 @@ import o.api.library.entity.Member;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class MemberSignUpDto {
+public class MemberUpdateDto {
+    @Schema(defaultValue = "1")
+    @Positive
+    private Long id;
+
     @Schema(defaultValue = "장성욱")
     @Size(min = 1,  max = 50)
     private String name;
@@ -37,9 +38,10 @@ public class MemberSignUpDto {
     @PositiveOrZero
     private Long balance;
 
-    @Description("회원 가입에 필요한 엔티티 생성")
-    public Member signUp() {
+    @Description("회원 정보 수정에 필요한 엔티티 생성")
+    public Member update() {
         return Member.builder()
+                .id(id)
                 .name(name)
                 .email(email)
                 .password(password)

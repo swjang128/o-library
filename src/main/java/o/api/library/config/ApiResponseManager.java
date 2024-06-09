@@ -36,4 +36,13 @@ public class ApiResponseManager {
                 .message(message)
                 .build();
     }
+
+    @Description("Setting up API response when fail occurred")
+    public static ApiResponseManager failed(Object data) {
+        return ApiResponseManager.builder()
+                .status(HttpStatus.OK.value())
+                .message(HttpStatus.OK.getReasonPhrase())
+                .data(data)
+                .build();
+    }
 }
