@@ -3,6 +3,7 @@ package o.api.library.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import jdk.jfr.Description;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ public class MemberSignUpDto {
     @Size(min = 1,  max = 50)
     private String name;
 
-    @Schema(defaultValue = "swjang128@udo.com")
+    @Schema(defaultValue = "swjang128@email.com")
     @Email
     private String email;
 
@@ -32,6 +33,10 @@ public class MemberSignUpDto {
     @Pattern(regexp = "\\d{11}")
     private String phone;
 
+    @Schema(defaultValue = "1000000")
+    @PositiveOrZero
+    private Long balance;
+
     @Description("회원 가입에 필요한 엔티티 생성")
     public Member signUp() {
         return Member.builder()
@@ -39,6 +44,7 @@ public class MemberSignUpDto {
                 .email(email)
                 .password(password)
                 .phone(phone)
+                .balance(balance)
                 .build();
     }
 }

@@ -69,10 +69,28 @@ public class BookServiceImpl implements BookService {
                 Book book = optionalBook.get();
                 // 대여할 수 있는 도서인 경우 updateBooks에 Book을 추가
                 if (book.isStatus() && book.getCheckoutId() == null) {
-                    book.setCheckOutAndIncreaseCount(bookCheckoutDto.getCheckoutId());
-                    checkoutBookList.add(book);
-                    BookHistory bookHistory = bookCheckoutDto.historyByCheckout(book, bookCheckoutDto.getCheckoutId());
-                    bookHistoryList.add(bookHistory);
+                    // 잔액이 충분한 회원은 아래 로직을 실행하고 부족하면 대여 실패 리스트에 넣기
+                    Optional<Member> member = memberRepository.findByIdAndBalanceGreaterThanEqual(bookCheckoutDto.getCheckoutId(), book.getPrice());
+                    if (member.isEmpty()) {
+                        // 잔액이 부족하거나 정확한 회원정보가 아닌 경우
+                        checkoutFailedBookList.add(book);
+                    } else {
+                        // 잔액이 충분하고 정확한 회원정보인 경우 도서 반납 성공 후 리스트에 담기
+                        book.setCheckOutAndIncreaseCount(bookCheckoutDto.getCheckoutId());
+                        checkoutBookList.add(book);
+                        BookHistory bookHistory = bookCheckoutDto.historyByCheckout(book, bookCheckoutDto.getCheckoutId());
+                        bookHistoryList.add(bookHistory);
+                        // 잔액 차감 실행
+                        Member updateMember = Member.builder()
+                                .id(member.get().getId())
+                                .name(member.get().getName())
+                                .email(member.get().getEmail())
+                                .phone(member.get().getPhone())
+                                .password(member.get().getPassword())
+                                .balance(member.get().getBalance() - book.getPrice())
+                                .build();
+                        memberRepository.save(updateMember);
+                    }
                 } else {
                     // 대여할 수 없는 경우 대여 실패 리스트(checkoutFailedBooks) 에 추가
                     checkoutFailedBookList.add(book);

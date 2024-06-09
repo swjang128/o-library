@@ -12,11 +12,11 @@ public class SwaggerConfig {
 	@Bean
 	public OpenAPI sdkOpenAPI() {
 		Info info = new Info()
-				.title("Udo API")
+				.title("Library API")
 				.version("v1")
-				.description("Udo API Collection");
+				.description("Library API Collection");
 		return new OpenAPI()
-				.addServersItem(new Server().url("/"))
+				.addServersItem(new Server().url("/library"))
 				.components(new Components())
 				.info(info);
 	}
